@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import type { GLViewer } from '3dmol';
+import type { GLViewer, SelectionSpec } from '3dmol';
 import styles from './page.module.css';
 
 type Complex = {
@@ -9,7 +9,8 @@ type Complex = {
   label: string;
   binder: string;
   target: string;
-  ligandCode: string;
+  ligandLabel: string;
+  ligandSelection: SelectionSpec;
   summary: string;
   ligandStickColor: string;
   ligandSurfaceColor: string;
@@ -21,7 +22,8 @@ const COMPLEXES: Complex[] = [
     label: 'Imatinib • BCR-ABL',
     binder: 'Imatinib',
     target: 'BCR-ABL tyrosine kinase',
-    ligandCode: 'STI',
+    ligandLabel: 'STI',
+    ligandSelection: { resn: 'STI' },
     summary:
       'First-in-class ATP-competitive inhibitor that locks Abl in an inactive conformation for CML treatment.',
     ligandStickColor: '#f97316',
@@ -32,7 +34,8 @@ const COMPLEXES: Complex[] = [
     label: 'N3 • SARS-CoV-2 Mpro',
     binder: 'N3 covalent inhibitor',
     target: 'SARS-CoV-2 main protease (Mpro)',
-    ligandCode: 'N3',
+    ligandLabel: 'N3',
+    ligandSelection: { resn: ['02J', 'PJE', '010'] },
     summary:
       'Electrophilic peptidomimetic that irreversibly binds the viral main protease and seeded COVID-era antiviral design.',
     ligandStickColor: '#f43f5e',
@@ -43,7 +46,8 @@ const COMPLEXES: Complex[] = [
     label: 'Carazolol • β2AR',
     binder: 'Carazolol',
     target: 'β2 adrenergic receptor (GPCR)',
-    ligandCode: 'CAU',
+    ligandLabel: 'CAU',
+    ligandSelection: { resn: 'CAU' },
     summary:
       'Inverse agonist that stabilizes the inactive β2AR state; the structure jump-started GPCR drug discovery.',
     ligandStickColor: '#a855f7',
@@ -98,7 +102,7 @@ export default function Home() {
           { cartoon: { color: '#1f2937', opacity: 0.9 } },
         );
         viewer.setStyle(
-          { resn: selectedComplex.ligandCode },
+          selectedComplex.ligandSelection,
           {
             stick: {
               color: selectedComplex.ligandStickColor,
@@ -110,9 +114,9 @@ export default function Home() {
         viewer.addSurface(
           SurfaceType.VDW,
           { opacity: 0.35, color: selectedComplex.ligandSurfaceColor },
-          { resn: selectedComplex.ligandCode },
+          selectedComplex.ligandSelection,
         );
-        viewer.zoomTo({ resn: selectedComplex.ligandCode });
+        viewer.zoomTo(selectedComplex.ligandSelection);
         viewer.render();
 
         setIsLoading(false);
@@ -203,7 +207,7 @@ export default function Home() {
           </li>
           <li>
             <strong>Binder:</strong> {selectedComplex.binder} (residue code{' '}
-            {selectedComplex.ligandCode})
+            {selectedComplex.ligandLabel})
           </li>
           <li>
             <strong>Why it matters:</strong> {selectedComplex.summary}

@@ -1,5 +1,6 @@
 declare module '3dmol' {
-  type SelectionSpec = Record<string, string | number | boolean>
+  export type SelectionValue = string | number | boolean | string[] | number[]
+  export type SelectionSpec = Record<string, SelectionValue>
   type StyleSpec = Record<string, unknown>
 
   interface ViewerConfig {
