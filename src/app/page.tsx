@@ -145,10 +145,6 @@ export default function Home() {
       <header className={styles.header}>
         <p className={styles.eyebrow}>Binder / Target</p>
         <h1>Binding Playground</h1>
-        <p className={styles.sublede}>
-          Viewing {selectedComplex.binder} bound to {selectedComplex.target} (PDB{' '}
-          {selectedComplex.id})
-        </p>
         <p className={styles.lede}>
           Protein is rendered as a single-color cartoon so the small-molecule
           binder stands out in vivid color. Drag to rotate, scroll or pinch to
