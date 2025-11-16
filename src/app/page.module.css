@@ -33,6 +33,32 @@
   max-width: 75ch;
 }
 
+.selectorRow {
+  margin-top: 1.5rem;
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.selectorRow label {
+  font-size: 0.9rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #a1a1aa;
+}
+
+.select {
+  background: #090909;
+  color: #f8fafc;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  padding: 0.4rem 1rem;
+  font-size: 0.95rem;
+  cursor: pointer;
+  min-width: 220px;
+}
+
 .viewerPanel {
   background: #050505;
   border: 1px solid rgba(255, 255, 255, 0.08);

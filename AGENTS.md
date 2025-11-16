@@ -1,7 +1,8 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-- `src/app/` holds the App Router entrypoints. `page.tsx` is a client component that boots the 3Dmol viewer; `page.module.css` and `globals.css` define both local and global styling. 3Dmol typing helpers live in `src/types/`.
+- `src/app/` holds the App Router entrypoints. `page.tsx` is a client component that boots the 3Dmol viewer; `page.module.css` and `globals.css` define both local and global styling. The curated complexes live in the `COMPLEXES` array inside `page.tsx`.
+- 3Dmol typing helpers live in `src/types/`. Static assets (favicons, etc.) live under `public/`. Build artifacts land in `.next/` when running dev or build, and should not be committed.
 - Static assets (favicons, etc.) live under `public/`. Build artifacts land in `.next/` when running dev or build, and should not be committed.
 
 ## Build, Test, and Development Commands
@@ -15,7 +16,7 @@
 - Import aliases: `@/*` resolves to `src/`. Use relative paths only inside tight module clusters.
 
 ## Testing Guidelines
-- No dedicated unit test suite yet. Validate changes by exercising the viewer locally (`npm run dev`) and running `npm run build` to catch SSR issues (e.g., improper window usage). Add playwright/vitest coverage if you introduce complex logic.
+- No dedicated unit test suite yet. Validate changes by exercising the viewer locally (`npm run dev`), switching through every complex in the dropdown, and running `npm run build` to catch SSR issues (e.g., improper window usage). Add playwright/vitest coverage if you introduce complex logic.
 
 ## Commit & Pull Request Guidelines
 - Follow conventional, action-oriented commits (e.g., `feat: enhance ligand contrast`). Group related file updates into a single commit.

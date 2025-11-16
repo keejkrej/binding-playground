@@ -4,11 +4,56 @@ import { useEffect, useRef, useState } from 'react';
 import type { GLViewer } from '3dmol';
 import styles from './page.module.css';
 
-const PDB_ID = '1OPJ';
-const LIGAND_RESNAME = 'STI';
+type Complex = {
+  id: string;
+  label: string;
+  binder: string;
+  target: string;
+  ligandCode: string;
+  summary: string;
+  ligandStickColor: string;
+  ligandSurfaceColor: string;
+};
+
+const COMPLEXES: Complex[] = [
+  {
+    id: '1OPJ',
+    label: 'Imatinib • BCR-ABL',
+    binder: 'Imatinib',
+    target: 'BCR-ABL tyrosine kinase',
+    ligandCode: 'STI',
+    summary:
+      'First-in-class ATP-competitive inhibitor that locks Abl in an inactive conformation for CML treatment.',
+    ligandStickColor: '#f97316',
+    ligandSurfaceColor: '#fb923c',
+  },
+  {
+    id: '6LU7',
+    label: 'N3 • SARS-CoV-2 Mpro',
+    binder: 'N3 covalent inhibitor',
+    target: 'SARS-CoV-2 main protease (Mpro)',
+    ligandCode: 'N3',
+    summary:
+      'Electrophilic peptidomimetic that irreversibly binds the viral main protease and seeded COVID-era antiviral design.',
+    ligandStickColor: '#f43f5e',
+    ligandSurfaceColor: '#fb7185',
+  },
+  {
+    id: '2RH1',
+    label: 'Carazolol • β2AR',
+    binder: 'Carazolol',
+    target: 'β2 adrenergic receptor (GPCR)',
+    ligandCode: 'CAU',
+    summary:
+      'Inverse agonist that stabilizes the inactive β2AR state; the structure jump-started GPCR drug discovery.',
+    ligandStickColor: '#a855f7',
+    ligandSurfaceColor: '#c084fc',
+  },
+];
 
 export default function Home() {
   const viewerRef = useRef<HTMLDivElement | null>(null);
+  const [selectedComplex, setSelectedComplex] = useState(COMPLEXES[0]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -27,11 +72,11 @@ export default function Home() {
 
       try {
         const response = await fetch(
-          `https://files.rcsb.org/download/${PDB_ID}.pdb`,
+          `https://files.rcsb.org/download/${selectedComplex.id}.pdb`,
         );
 
         if (!response.ok) {
-          throw new Error(`Unable to fetch PDB ${PDB_ID}`);
+          throw new Error(`Unable to fetch PDB ${selectedComplex.id}`);
         }
 
         const pdbData = await response.text();
@@ -53,21 +98,21 @@ export default function Home() {
           { cartoon: { color: '#1f2937', opacity: 0.9 } },
         );
         viewer.setStyle(
-          { resn: LIGAND_RESNAME },
+          { resn: selectedComplex.ligandCode },
           {
             stick: {
-              color: '#f97316',
+              color: selectedComplex.ligandStickColor,
               radius: 0.35,
             },
-            sphere: { color: '#fdba74', radius: 0.8 },
+            sphere: { color: selectedComplex.ligandSurfaceColor, radius: 0.8 },
           },
         );
         viewer.addSurface(
           SurfaceType.VDW,
-          { opacity: 0.35, color: '#f97316' },
-          { resn: LIGAND_RESNAME },
+          { opacity: 0.35, color: selectedComplex.ligandSurfaceColor },
+          { resn: selectedComplex.ligandCode },
         );
-        viewer.zoomTo({ resn: LIGAND_RESNAME });
+        viewer.zoomTo({ resn: selectedComplex.ligandCode });
         viewer.render();
 
         setIsLoading(false);
@@ -89,18 +134,43 @@ export default function Home() {
         viewer.clear();
       }
     };
-  }, []);
+  }, [selectedComplex]);
 
   return (
     <main className={styles.page}>
       <header className={styles.header}>
         <p className={styles.eyebrow}>Binder / Target</p>
-        <h1>Imatinib bound to BCR-ABL (PDB {PDB_ID})</h1>
+        <h1>
+          {selectedComplex.binder} bound to {selectedComplex.target} (PDB{' '}
+          {selectedComplex.id})
+        </h1>
         <p className={styles.lede}>
           Protein is rendered as a single-color cartoon so the small-molecule
-          binder imatinib ({LIGAND_RESNAME}) stands out in vivid orange. Drag to
-          rotate, scroll or pinch to zoom.
+          binder stands out in vivid color. Drag to rotate, scroll or pinch to
+          zoom.
         </p>
+        <div className={styles.selectorRow}>
+          <label htmlFor="complex-select">Choose a complex</label>
+          <select
+            id="complex-select"
+            className={styles.select}
+            value={selectedComplex.id}
+            onChange={(event) => {
+              const next = COMPLEXES.find(
+                (complex) => complex.id === event.target.value,
+              );
+              if (next) {
+                setSelectedComplex(next);
+              }
+            }}
+          >
+            {COMPLEXES.map((complex) => (
+              <option key={complex.id} value={complex.id}>
+                {complex.label}
+              </option>
+            ))}
+          </select>
+        </div>
       </header>
 
       <section className={styles.viewerPanel}>
@@ -119,7 +189,7 @@ export default function Home() {
             <div
               className={styles.viewer}
               ref={viewerRef}
-              aria-label="3D viewer for the imatinib complex"
+              aria-label={`3D viewer for ${selectedComplex.binder} bound to ${selectedComplex.target}`}
             />
           </>
         )}
@@ -129,17 +199,19 @@ export default function Home() {
         <h2>What are we looking at?</h2>
         <ul>
           <li>
-            <strong>Target:</strong> BCR-ABL tyrosine kinase catalytic domain,
-            the oncogenic driver in chronic myeloid leukemia.
+            <strong>Target:</strong> {selectedComplex.target}
           </li>
           <li>
-            <strong>Binder:</strong> Imatinib (residue code {LIGAND_RESNAME}), a
-            first-in-class ATP-competitive inhibitor.
+            <strong>Binder:</strong> {selectedComplex.binder} (residue code{' '}
+            {selectedComplex.ligandCode})
           </li>
           <li>
-            <strong>Representation:</strong> Monochrome cartoon for the protein
-            so the ligand pops in bright orange sticks/spheres, plus a
-            translucent surface to emphasize the binding pocket.
+            <strong>Why it matters:</strong> {selectedComplex.summary}
+          </li>
+          <li>
+            <strong>Representation:</strong> Monochrome protein cartoon with a
+            brightly hued ligand (sticks + spheres) and translucent surface to
+            spotlight the binding pocket.
           </li>
         </ul>
       </section>
